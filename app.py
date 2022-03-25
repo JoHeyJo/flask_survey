@@ -34,6 +34,7 @@ def show_first_question():
 def show_questions(q_id):
 
     question = survey.questions[q_id]
+    
 
     return render_template("question.html", question=question)
 
@@ -42,10 +43,17 @@ def show_questions(q_id):
 def show_next_question():
 
     choice = request.form.get("answer")
+    responses = session["responses"]
+    responses.append(choice)
+    session["responses"] = responses
+    # breakpoint()
 
-    session["responses"].append(choice)
+    if len(responses) == len(survey.questions):
+        return redirect("/completion")
 
-    breakpoint()
+    return redirect(f"/question/{len(responses)}")
 
-    return redirect(f"/question/{len(session['responses'])}")
+@app.get("/completion")
+def show_completion():
 
+  return render_template("completion.html")
