@@ -8,20 +8,44 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 debug = DebugToolbarExtension(app)
 
-RESPONSES = []
 
 @app.get("/")
 def start_page():
-  """render a page that shows the user the title of the survey, the instructions, and a button to start the survey."""
+    """render a page that shows the user the title of the survey, the instructions, and a button to start the survey."""
 
-  title = survey.title
-  instructions = survey.instructions
+    title = survey.title
+    instructions = survey.instructions
 
-  return render_template("survey_start.html", 
-                          title=title,
-                          instructions=instructions)
+    return render_template("survey_start.html",
+                           title=title,
+                           instructions=instructions)
+
 
 @app.post("/begin")
-def begin_questions():
-debugger()
-  return render_template("/question.html")
+def show_first_question():
+    """ Generate each question page with choices """
+
+    session["responses"] = []
+
+    return redirect("question/0")
+
+
+@app.get("/question/<int:q_id>")
+def show_questions(q_id):
+
+    question = survey.questions[q_id]
+
+    return render_template("question.html", question=question)
+
+
+@app.post("/answer")
+def show_next_question():
+
+    choice = request.form.get("answer")
+
+    session["responses"].append(choice)
+
+    breakpoint()
+
+    return redirect(f"/question/{len(session['responses'])}")
+
